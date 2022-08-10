@@ -1,21 +1,16 @@
 const mongoose = require("mongoose");
 const Product = require("../models/Product");
 /*-----------------------------post orders-----------------------------*/
-exports.get_product = (req, res, next) => {
+exports.get_product =async (req, res, next) => {
   try {
-    Product
-      .find()
-      .select("-__v")
-      .exec()
-      .then((doc) => {
-        res.status(200).json(doc);
-      });
+    const data=await Product.find().select("-__v")
+    res.status(200).json(data);
   } catch (error) {
     res.status(500).json({ error: err });
   }
 };
 /*-----------------------------get all product-----------------------------*/
-exports.post_product = (req, res) => {
+exports.post_product = async (req, res) => {
   try {
     const product = new Product({
       _id: new mongoose.Types.ObjectId(),
@@ -23,33 +18,31 @@ exports.post_product = (req, res) => {
       price: req.body.price,
       productImage: req.file.path,
     });
-    product.save().then((doc) => {
-      return res.status(202).json({
-        message: "Created product successfuly",
-        product: {
-          doc: doc,
-          request: {
-            type: "GET",
-            url: `http://localhost:3000/product/${doc._id}`,
-          },
+    const data = await product.save();
+    return res.status(202).json({
+      message: "Created product successfuly",
+      product: {
+        doc: data,
+        request: {
+          type: "GET",
+          url: `http://localhost:3000/product/${doc._id}`,
         },
-      });
+      },
     });
   } catch (error) {
     res.status(404).send("${error}");
   }
 };
 /*-----------------------------patch a product-----------------------------*/
-exports.patch_product = (req, res, next) => {
+exports.patch_product = async (req, res, next) => {
   try {
     const id = req.params.productId;
-    Product.findByIdAndUpdate(id, req.body, { new: true }, (err, doc) => {
-      if (err) {
-        res.status(500).json({ error: err });
-      } else {
-        res.status(200).json(doc);
-      }
-    });
+    const data =await Product.findByIdAndUpdate(id, req.body, { new: true });
+    if (err) {
+      res.status(500).json({ error: err });
+    } else {
+      res.status(200).json(data);
+    }
   } catch (error) {
     res.status(404).json("{$error");
   }
@@ -71,20 +64,16 @@ exports.delete_product = async (req, res, next) => {
 };
 /*-----------------------------getting a product by id-----------------------------*/
 
-exports.get_product_id = (req, res, next) => {
+exports.get_product_id = async (req, res, next) => {
   try {
     const id = req.params.productId;
-    Product
-      .findById(id)
-      .select("-__v")
-      .exec()
-      .then((doc) => {
-        if (doc) {
-          res.status(200).json(doc);
-        } else {
-          res.status(404).json({ message: "invalid id" });
-        }
-      });
+    const data = await Product.findById(id).select("-__v");
+
+    if (doc) {
+      res.status(200).json(data);
+    } else {
+      res.status(404).json({ message: "invalid id" });
+    }
   } catch (error) {
     res.status(500).json({
       error: err,

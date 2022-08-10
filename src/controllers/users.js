@@ -4,10 +4,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 exports.Login=async(req, res, next) => {
     try {
-      const data =await User.find
-
-
-      (req.body.email);
+      const data =await User.find(req.body.email);
       if (!data) return res.status(404).send("user not found");
       const isPassword=await bcrypt.compare(req.body.password, data.password);
       if (!isPassword) return res.status(404).send("invalid password ");
